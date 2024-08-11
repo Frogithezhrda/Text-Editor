@@ -1,0 +1,3 @@
+## My Text Editor Very Simple
+
+# you can open files with it load files etc....
