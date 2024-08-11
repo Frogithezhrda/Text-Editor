@@ -1,0 +1,11 @@
+﻿  prog.c
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(66,35): warning C4133: '=': incompatible types - from 'GtkWidget *' to 'GtkTextView *'
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(102,62): warning C4133: 'function': incompatible types - from 'GtkTextView *' to 'GtkWidget *'
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(82,1): warning C4133: 'initializing': incompatible types - from 'GtkTextView *' to 'GtkWidget *'
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(130,22): warning C4133: 'function': incompatible types - from 'FILE *' to 'const char *const '
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(131,17): warning C4098: 'saveFile': 'void' function returning a value
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(170,21): warning C4098: 'saveAsFile': 'void' function returning a value
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(186,17): warning C4101: 'iter': unreferenced local variable
+  TextEditorSaban.vcxproj -> C:\Users\Cyber_User\source\repos\TextEditorSaban\x64\Debug\TextEditorSaban.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.

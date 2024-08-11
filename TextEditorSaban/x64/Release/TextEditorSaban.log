@@ -1,0 +1,20 @@
+﻿  prog.c
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(34,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(54,56): warning C4047: 'function': 'int' differs in levels of indirection from 'void *'
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(54,52): warning C4024: 'g_application_run': different types for formal and actual parameter 2
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(96,35): warning C4133: '=': incompatible types - from 'GtkWidget *' to 'GtkTextView *'
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(133,62): warning C4133: 'function': incompatible types - from 'GtkTextView *' to 'GtkWidget *'
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(113,1): warning C4133: 'initializing': incompatible types - from 'GtkTextView *' to 'GtkWidget *'
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(162,22): warning C4133: 'function': incompatible types - from 'FILE *' to 'const char *const '
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(163,17): warning C4098: 'saveFile': 'void' function returning a value
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(206,21): warning C4098: 'saveAsFile': 'void' function returning a value
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(221,17): warning C4101: 'iter': unreferenced local variable
+C:\Users\Cyber_User\source\repos\TextEditorSaban\TextEditorSaban\prog.c(261,17): warning C4098: 'loadFile': 'void' function returning a value
+  Generating code
+  3 of 13 functions (23.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    2 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  TextEditorSaban.vcxproj -> C:\Users\Cyber_User\source\repos\TextEditorSaban\x64\Release\TextEditorSaban.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.

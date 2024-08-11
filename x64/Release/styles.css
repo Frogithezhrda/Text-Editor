@@ -1,0 +1,68 @@
+/*
+You can type here any CSS rule recognized by GTK+.
+You can temporarily disable this custom CSS by clicking on the “Pause” button above.
+
+Changes are applied instantly and globally, for the whole application.
+*/
+
+window {
+    background-color: #696564; /* Dark gray background for the window */
+    color: #ffffff; /* White text color for menus */
+}
+
+menubar {
+    background: #3e3e3e; /* Darker gray background for the menu bar */
+}
+
+menu, menuitem {
+    background: #3e3e3e; /* Medium gray background for menus */
+    color: #ffffff; /* White text color for menus */
+}
+
+    menu:active, menuitem:active {
+        background: #4e4e4e; /* Slightly lighter gray for menu item hover state */
+    }
+
+    menu:hover, menuitem:hover {
+        background: #4e4e4e; /* Slightly lighter gray for menu item hover state */
+    }
+
+    menu:focus, menuitem:focus {
+        background: #3e3e3e; /* Background color for focused menu items */
+        color: #ffffff; /* Text color for focused menu items */
+    }
+
+button {
+    background: #3e3e3e; /* Medium gray background for buttons */
+    color: #ffffff; /* White text color for buttons */
+}
+
+    button:hover {
+        background-color: #4e4e4e; /* Slightly lighter gray for button hover state */
+    }
+
+    button:focus {
+        background-color: #3e3e3e; /* Background color for focused buttons */
+        color: #ffffff; /* Text color for focused buttons */
+        outline: none; /* Remove the default focus outline */
+    }
+
+textview {
+    background: #313131;
+    font-family: "Courier New", monospace;
+    font-size: 14px;
+    border: 1px solid #313131;
+}
+
+    textview text {
+        background: #696564;
+        color: white;
+        padding: 0px;
+        margin:0px;
+    }
+    entry:focus {
+        background-color: #1e1e1e; /* Background color for focused entries */
+        color: #ffffff; /* Text color for focused entries */
+        outline: none; /* Remove the default focus outline */
+    }
+
