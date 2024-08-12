@@ -149,7 +149,7 @@ void saveFile()
     GtkTextIter start;
     gchar* text = NULL;
     //checking there is a file to open
-    if (filename == NULL) 
+    if (filename == NULL || !strcmp(filename, ""))
     {
         show_message("No file is currently open for saving.!");
         printf(stderr, "No file is currently open for saving.\n");
@@ -163,13 +163,10 @@ void saveFile()
     text = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
     //open the file and writ to it closing it and freeing the memory of the text
     savedFile = fopen(filename, "w");
-    if (savedFile != NULL)
-    {
         fprintf(savedFile, "%s", text);
         fflush(savedFile);
         fclose(savedFile);
         g_free(text);
-    }
 }
 
 void saveAsFile()
@@ -228,10 +225,8 @@ void loadFileOption()
     {
         // getting the filename
         filename = gtk_file_chooser_get_filename(fileChooser);
-        printf("File selected: %s\n", filename);
         //reading from the file name and getting it into a file
         loadFile();
-        g_free(filename);
     }
 
     gtk_widget_destroy(dialog);
