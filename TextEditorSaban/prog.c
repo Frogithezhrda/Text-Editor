@@ -24,7 +24,7 @@ void show_message(const char* message)
     wchar_t* wmessage = (wchar_t*)malloc(size * sizeof(wchar_t));
     MultiByteToWideChar(CP_UTF8, 0, message, -1, wmessage, size);
 
-    MessageBox(NULL, wmessage, L"Debug Info", MB_OK | MB_ICONINFORMATION);
+    MessageBox(NULL, wmessage, L"Info!", MB_OK | MB_ICONINFORMATION);
     free(wmessage);
 }
 
@@ -75,8 +75,6 @@ static void activate(GtkApplication* app, gpointer user_data)
     GtkWidget* fileMenuQuit = NULL;
     GtkWidget* sep = NULL;
     GtkWidget* fileMenuOptions = NULL;
-    GtkCssProvider* cssProvider = NULL;
-    GtkStyleContext* styleContext = NULL;
     GtkWidget* scrolledWindow = NULL;
     GtkAccelGroup* accelGroup = NULL;
 
@@ -116,17 +114,12 @@ static void activate(GtkApplication* app, gpointer user_data)
     {
         gtk_menu_shell_append(GTK_MENU_SHELL(fileMenu), widgetArr[i]);
     }
-    //getting css
-    cssProvider = gtk_css_provider_new();
-    gtk_css_provider_load_from_path(cssProvider, "styles.css", NULL);
     //loading each widget the css for it
 
     for (int i = 0; i < WIDGET_COUNT; i++)
     {
-        styleContext = gtk_widget_get_style_context(widgetArr[i]);
-        gtk_style_context_add_provider(styleContext, GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+        reload_css(widgetArr[i]);
     }
-    g_object_unref(cssProvider);
     //creating a text view which could be scrolled when needed
     scrolledWindow = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -158,7 +151,7 @@ void saveFile()
     //checking there is a file to open
     if (filename == NULL) 
     {
-        show_message("Null!");
+        show_message("No file is currently open for saving.!");
         printf(stderr, "No file is currently open for saving.\n");
         return 0;
     }
@@ -170,14 +163,13 @@ void saveFile()
     text = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
     //open the file and writ to it closing it and freeing the memory of the text
     savedFile = fopen(filename, "w");
-    if (savedFile == NULL)
+    if (savedFile != NULL)
     {
-        show_message("Could not open file!");
+        fprintf(savedFile, "%s", text);
+        fflush(savedFile);
+        fclose(savedFile);
+        g_free(text);
     }
-    fprintf(savedFile, "%s", text);
-    fflush(savedFile);
-    fclose(savedFile);
-    g_free(text);
 }
 
 void saveAsFile()
@@ -286,12 +278,62 @@ void loadFile()
         free(text);
     }
 }
-void reload_css(GtkWidget* widget) 
+void reload_css(GtkWidget* widget)
 {
-    //reloading the css from the styles.css
+    GtkStyleContext* style_context = NULL;
     GtkCssProvider* css_provider = gtk_css_provider_new();
-    GtkStyleContext* style_context = gtk_widget_get_style_context(widget);
-    gtk_css_provider_load_from_path(css_provider, "styles.css", NULL);
+    gchar* css_data =
+        "/*\n"
+        "You can type here any CSS rule recognized by GTK+.\n"
+        "You can temporarily disable this custom CSS by clicking on the “Pause” button above.\n"
+        "\n"
+        "Changes are applied instantly and globally, for the whole application.\n"
+        "*/\n"
+        "\n"
+        "window {\n"
+        "    background-color: #696564; /* Dark gray background for the window */\n"
+        "    color: #ffffff; /* White text color for menus */\n"
+        "}\n"
+        "\n"
+        "menubar {\n"
+        "    background: #3e3e3e; \n"
+        "}\n"
+        "\n"
+        "menu, menuitem {\n"
+        "    background: #3e3e3e; /* Medium gray background for menus */\n"
+        "    color: #ffffff; /* White text color for menus */\n"
+        "}\n"
+        "\n"
+        "    menu:active, menuitem:active {\n"
+        "        background: #4e4e4e; /* Slightly lighter gray for menu item hover state */\n"
+        "    }\n"
+        "\n"
+        "    menu:hover, menuitem:hover {\n"
+        "        background: #4e4e4e; /* Slightly lighter gray for menu item hover state */\n"
+        "    }\n"
+        "\n"
+        "    menu:focus, menuitem:focus {\n"
+        "        background: #3e3e3e; /* Background color for focused menu items */\n"
+        "        color: #ffffff; /* Text color for focused menu items */\n"
+        "    }\n"
+        "\n"
+        "textview {\n"
+        "    background: #313131;\n"
+        "    font-family: \"Courier New\", monospace;\n"
+        "    font-size: 14px;\n"
+        "    border: 1px solid #313131;\n"
+        "    padding-left: 15px;\n"
+        "}\n"
+        "\n"
+        "    textview text {\n"
+        "        background: #696564;\n"
+        "        color: white;\n"
+        "        padding: 0px;\n"
+        "        margin:0px;\n"
+        "    }\n";
+    //loading the css info!
+    gtk_css_provider_load_from_data(css_provider, css_data, -1, NULL);
+    style_context = gtk_widget_get_style_context(widget);
     gtk_style_context_add_provider(style_context, GTK_STYLE_PROVIDER(css_provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     g_object_unref(css_provider);
 }
