@@ -135,7 +135,7 @@
       <AdditionalIncludeDirectories>C:\msys64\mingw64\include\gtk-3.0;C:\msys64\mingw64\include\glib-2.0;C:\msys64\mingw64\lib\glib-2.0\include;C:\msys64\mingw64\include\cairo;C:\msys64\mingw64\include\gdk-pixbuf-2.0;C:\msys64\mingw64\include\pango-1.0;C:\msys64\mingw64\include\atk-1.0;C:\msys64\mingw64\include\harfbuzz</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -153,7 +153,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fileMaster.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="ui.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TextEditorSaban.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
