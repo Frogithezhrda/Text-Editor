@@ -144,10 +144,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="fileMaster.c" />
     <ClCompile Include="prog.c" />
+    <ClCompile Include="ui.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="styles.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="fileMaster.h" />
+    <ClInclude Include="ui.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
