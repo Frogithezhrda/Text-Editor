@@ -34,10 +34,10 @@ void activateUI(GtkApplication* app, gpointer user_data)
     state = (AppState*)calloc(1, sizeof(AppState));
     //intializing the app
     state->appWindow = gtk_application_window_new(app);
+
     gtk_window_set_title(GTK_WINDOW(state->appWindow), "Saban Text Editor");
     gtk_window_set_default_size(GTK_WINDOW(state->appWindow), WIDTH, HEIGHT);
     gtk_window_set_position(GTK_WINDOW(state->appWindow), GTK_WIN_POS_CENTER);
-    gtk_window_set_icon_from_file(GTK_WINDOW(state->appWindow), "icon.png", NULL);
     //creating an app box
     appBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(state->appWindow), appBox);
@@ -45,7 +45,18 @@ void activateUI(GtkApplication* app, gpointer user_data)
     menuBar = gtk_menu_bar_new();
     gtk_box_pack_start(GTK_BOX(appBox), menuBar, FALSE, FALSE, 0);
     //creating options
-    state->textView = gtk_text_view_new();
+    state->textView = gtk_source_view_new();
+    gtk_source_view_set_show_line_numbers(GTK_SOURCE_VIEW(state->textView), TRUE);
+    GtkSourceBuffer* buf = GTK_SOURCE_BUFFER(gtk_text_view_get_buffer(GTK_TEXT_VIEW(state->textView)));
+    GtkSourceStyleSchemeManager* mgr = gtk_source_style_scheme_manager_get_default();
+    gtk_source_style_scheme_manager_append_search_path(mgr, "resources/styles/");
+    GtkSourceStyleScheme* scheme = gtk_source_style_scheme_manager_get_scheme(mgr, "saban-dark");
+
+    if (scheme)
+        gtk_source_buffer_set_style_scheme(buf, scheme);
+    else
+        g_warning("Style scheme 'saban-dark' not found");
+
     loadFile();
     fileMenu = gtk_menu_new();
     fileMenuFile = gtk_menu_item_new_with_label("File");
@@ -142,9 +153,9 @@ void openOptionsDialog()
 
 void reloadCss(GtkWidget* widget)
 {
-    GtkStyleContext* style_context = NULL;
-    GtkCssProvider* css_provider = gtk_css_provider_new();
-    gchar* css_data =
+    GtkStyleContext* styleContext = NULL;
+    GtkCssProvider* cssProvider = gtk_css_provider_new();
+    gchar* cssData =
         "\n"
         "window {\n"
         "    background-color: #696564; /* Dark gray background for the window */\n"
@@ -172,20 +183,35 @@ void reloadCss(GtkWidget* widget)
         "    font-family: \"Courier New\", monospace;\n"
         "    font-size: 14px;\n"
         "    border: 1px solid #313131;\n"
-        "    padding-left: 15px;\n"
         "}\n"
         "    textview text {\n"
         "        background: #696564;\n"
         "        color: white;\n"
         "        padding: 0px;\n"
-        "        margin:0px;\n"
-        "    }\n";
-    //loading the css info!
-    gtk_css_provider_load_from_data(css_provider, css_data, -1, NULL);
-    style_context = gtk_widget_get_style_context(widget);
-    gtk_style_context_add_provider(style_context, GTK_STYLE_PROVIDER(css_provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-    g_object_unref(css_provider);
+        "        margin: 0px;\n"
+        "    }\n"
+        "gtksourceview.view > gutter {\n"
+        "    background-color: #313131;\n"
+        "    padding-left: 3px;\n"
+        "}\n"
+        "gtksourceview.view .line-numbers {\n"
+        "    color: white;\n"
+        "    font-family: \"Courier New\", monospace;\n"
+        "    font-size: 12px;\n"
+        "}\n"
+        "gtksourceview.view {\n"
+        "    padding-left: 5px;\n"
+        "    margin-left: 0px;\n"
+        "    border-width: 0px;\n"
+        "    background: #313131;\n"
+        "}\n";
+
+    gtk_css_provider_load_from_data(cssProvider, cssData, -1, NULL);
+    styleContext = gtk_widget_get_style_context(widget);
+    gtk_style_context_add_provider(styleContext, GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    g_object_unref(cssProvider);
 }
+
 
 gboolean updateTextViewOnMainThread(TextPTR* textPtr)
 {

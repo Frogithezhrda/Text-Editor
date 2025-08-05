@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<style-scheme id="saban-dark" _name="Saban Dark" version="1.0">
+	<author>Omer Saban</author>
+	<description>Custom dark theme with white line numbers</description>
+
+	<!-- Background and text -->
+	<style name="text" foreground="#ffffff" background="#1e1e1e"/>
+	<style name="background" background="#1e1e1e"/>
+
+	<!-- Line numbers (gutter) -->
+	<style name="line-numbers" foreground="#ffffff" background="#2e2e2e"/>
+
+	<!-- Example syntax elements -->
+	<style name="keyword" foreground="#569cd6" bold="true"/>
+	<style name="comment" foreground="#6a9955" italic="true"/>
+	<style name="string" foreground="#ce9178"/>
+	<style name="function" foreground="#dcdcaa"/>
+</style-scheme>

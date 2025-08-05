@@ -1,6 +1,7 @@
 #pragma once
 #include <gtk/gtk.h>
 #include <Windows.h>
+#include <gtksourceview/gtksource.h>
 
 #pragma warning(disable:4996)
 

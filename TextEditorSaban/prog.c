@@ -1,7 +1,7 @@
 #include "fileMaster.h"
 
 
-static void activate(GtkApplication* app, gpointer user_data) 
+static void activate(GtkApplication* app, gpointer user_data)
 {
     activateUI(app, user_data);
 }
@@ -12,6 +12,7 @@ int main()
 {
     GtkApplication* app = NULL;
     int status = 0;
+    g_setenv("GSETTINGS_SCHEMA_DIR", "C:\\msys64\\mingw64\\share\\glib-2.0\\schemas", TRUE);
     app = gtk_application_new("my.texteditor", G_APPLICATION_FLAGS_NONE);
     if (!app) {
         showMessage("Failed to initialize GTK app!");
@@ -37,6 +38,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
     GtkApplication* app = NULL;
     int status = 0;
+    g_setenv("GSETTINGS_SCHEMA_DIR", "C:\\msys64\\mingw64\\share\\glib-2.0\\schemas", TRUE);
     app = gtk_application_new("my.texteditor", G_APPLICATION_FLAGS_NONE);
     if (!app) {
         showMessage("Failed to initialize GTK app!");
