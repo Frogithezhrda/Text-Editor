@@ -43,3 +43,4 @@ void setFontSize();
 void resetZoom();
 void zoomIn();
 void zoomOut();
+void quitOption(GtkMenuItem* menuitem, gpointer userData);

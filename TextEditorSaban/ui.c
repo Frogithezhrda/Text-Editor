@@ -31,7 +31,7 @@ void activateUI(GtkApplication* app, gpointer userData)
     GtkWidget* editMenuZoomOut = NULL;
     GtkWidget* editMenuZoomReset = NULL;
     GtkWidget* fileMenuLoad = NULL;
-    GtkWidget* fileMenuQuit = NULL;
+    GtkWidget* helpMenuQuit = NULL;
     GtkWidget* sep = NULL;
     GtkWidget* editMenuOptions = NULL;
     GtkWidget* scrolledWindow = NULL;
@@ -87,7 +87,7 @@ void activateUI(GtkApplication* app, gpointer userData)
     fileMenuSave = gtk_menu_item_new_with_label("Save");
     fileMenuSaveAs = gtk_menu_item_new_with_label("Save As");
     fileMenuLoad = gtk_menu_item_new_with_label("Load");
-    fileMenuQuit = gtk_menu_item_new_with_label("Quit");
+    helpMenuQuit = gtk_menu_item_new_with_label("Quit");
     editMenuZoomIn = gtk_menu_item_new_with_label("Zoom In");
     editMenuZoomOut = gtk_menu_item_new_with_label("Zoom Out");
     editMenuZoomReset = gtk_menu_item_new_with_label("Reset Zoom");
@@ -102,7 +102,7 @@ void activateUI(GtkApplication* app, gpointer userData)
     gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), editMenuOptions);
     gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), helpMenuHelp);
     //widget arr for appending
-    GtkWidget* widgetArr[WIDGET_COUNT] = { state->appWindow, menuBar, fileMenu, helpMenu, optionsMenu, fileMenuFile, fileMenuSave, fileMenuSaveAs, fileMenuLoad, fileMenuQuit, sep, editMenuOptions, helpMenuHelp, helpMenuAbout, editMenuZoomIn, editMenuZoomOut, editMenuZoomReset, state->textView };
+    GtkWidget* widgetArr[WIDGET_COUNT] = { state->appWindow, menuBar, fileMenu, helpMenu, optionsMenu, fileMenuFile, fileMenuSave, fileMenuSaveAs, fileMenuLoad, sep, helpMenuQuit, editMenuOptions, helpMenuHelp, helpMenuAbout, editMenuZoomIn, editMenuZoomOut, editMenuZoomReset, state->textView };
     //appending only needed staff
     for (int i = 6; i < 11; i++)
     {
@@ -133,7 +133,7 @@ void activateUI(GtkApplication* app, gpointer userData)
     g_signal_connect(fileMenuSave, "activate", G_CALLBACK(saveFile), NULL);
     g_signal_connect(fileMenuSaveAs, "activate", G_CALLBACK(saveAsFile), NULL);
     g_signal_connect(fileMenuLoad, "activate", G_CALLBACK(loadFileOption), NULL);
-    g_signal_connect(fileMenuQuit, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(helpMenuQuit, "activate", G_CALLBACK(quitOption), app);
     g_signal_connect(editMenuZoomIn, "activate", G_CALLBACK(zoomIn), NULL);
     g_signal_connect(editMenuZoomOut, "activate", G_CALLBACK(zoomOut), NULL);
     g_signal_connect(helpMenuAbout, "activate", G_CALLBACK(aboutOption), NULL);
@@ -214,6 +214,12 @@ void zoomOut()
         state->currentFontSize -= ADD_ZOOM;
         setFontSize();
     }
+}
+
+void quitOption(GtkMenuItem* menuitem, gpointer userData)
+{
+    GtkApplication* app = GTK_APPLICATION(userData);
+    g_application_quit(G_APPLICATION(app));
 }
 
 void resetZoom()
