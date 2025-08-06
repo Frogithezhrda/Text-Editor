@@ -29,6 +29,7 @@ void activateUI(GtkApplication* app, gpointer userData)
     GtkWidget* fileMenuSaveAs = NULL;
     GtkWidget* editMenuZoomIn = NULL;
     GtkWidget* editMenuZoomOut = NULL;
+    GtkWidget* editMenuZoomReset = NULL;
     GtkWidget* fileMenuLoad = NULL;
     GtkWidget* fileMenuQuit = NULL;
     GtkWidget* sep = NULL;
@@ -83,6 +84,7 @@ void activateUI(GtkApplication* app, gpointer userData)
     fileMenuQuit = gtk_menu_item_new_with_label("Quit");
     editMenuZoomIn = gtk_menu_item_new_with_label("Zoom In");
     editMenuZoomOut = gtk_menu_item_new_with_label("Zoom Out");
+    editMenuZoomReset = gtk_menu_item_new_with_label("Reset Zoom");
     sep = gtk_separator_menu_item_new();
     optionsMenu = gtk_menu_new();
     editMenuOptions = gtk_menu_item_new_with_label("Edit");
@@ -94,7 +96,7 @@ void activateUI(GtkApplication* app, gpointer userData)
     gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), editMenuOptions);
     gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), helpMenuHelp);
     //widget arr for appending
-    GtkWidget* widgetArr[WIDGET_COUNT] = { state->appWindow, menuBar, fileMenu, helpMenu, optionsMenu, fileMenuFile, fileMenuSave, fileMenuSaveAs, fileMenuLoad, fileMenuQuit, sep, editMenuOptions, helpMenuHelp, helpMenuAbout, editMenuZoomIn, editMenuZoomOut, state->textView };
+    GtkWidget* widgetArr[WIDGET_COUNT] = { state->appWindow, menuBar, fileMenu, helpMenu, optionsMenu, fileMenuFile, fileMenuSave, fileMenuSaveAs, fileMenuLoad, fileMenuQuit, sep, editMenuOptions, helpMenuHelp, helpMenuAbout, editMenuZoomIn, editMenuZoomOut, editMenuZoomReset, state->textView };
     //appending only needed staff
     for (int i = 6; i < 11; i++)
     {
@@ -104,6 +106,7 @@ void activateUI(GtkApplication* app, gpointer userData)
 
     gtk_menu_shell_append(GTK_MENU_SHELL(optionsMenu), editMenuZoomIn);
     gtk_menu_shell_append(GTK_MENU_SHELL(optionsMenu), editMenuZoomOut);
+    gtk_menu_shell_append(GTK_MENU_SHELL(optionsMenu), editMenuZoomReset);
 
     //loading each widget the css for it
 
@@ -128,13 +131,15 @@ void activateUI(GtkApplication* app, gpointer userData)
     g_signal_connect(editMenuZoomIn, "activate", G_CALLBACK(zoomIn), NULL);
     g_signal_connect(editMenuZoomOut, "activate", G_CALLBACK(zoomOut), NULL);
     g_signal_connect(helpMenuAbout, "activate", G_CALLBACK(aboutOption), NULL);
+    g_signal_connect(editMenuZoomReset, "activate", G_CALLBACK(resetZoom), NULL);
     //when pressing ctrl + s will call the save function
     accelGroup = gtk_accel_group_new();
     gtk_window_add_accel_group(GTK_WINDOW(state->appWindow), accelGroup);
     gtk_accel_group_connect(accelGroup, GDK_KEY_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(saveFile), NULL, NULL));
+    gtk_accel_group_connect(accelGroup, GDK_KEY_equal, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(zoomIn), NULL, NULL));
+    gtk_accel_group_connect(accelGroup, GDK_KEY_minus, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(zoomOut), NULL, NULL));
+
 }
-
-
 
 void loadFileOption()
 {
@@ -179,30 +184,36 @@ void aboutOption()
     showMessage("Text Editor By Omer Saban!");
 }
 
-void setFontSize(int fontSize)
+void setFontSize()
 {
     PangoFontDescription* fontDesc = pango_font_description_from_string("Monospace");
-    pango_font_description_set_size(fontDesc, fontSize * PANGO_SCALE);
+    pango_font_description_set_size(fontDesc, state->currentFontSize * PANGO_SCALE);
     gtk_widget_override_font(GTK_WIDGET(state->textView), fontDesc);
     pango_font_description_free(fontDesc);
 }
 
 void zoomIn() 
 {
-    if (state->currentFontSize < 72)
+    if (state->currentFontSize < MAX_ZOOM)
     {  // max limit
-        state->currentFontSize += 2;
-        setFontSize(state->currentFontSize);
+        state->currentFontSize += ADD_ZOOM;
+        setFontSize();
     }
 }
 
 void zoomOut() 
 {
-    if (state->currentFontSize > 6) 
+    if (state->currentFontSize > MIN_ZOOM) 
     {  // min limit
-        state->currentFontSize -= 2;
-        setFontSize(state->currentFontSize);
+        state->currentFontSize -= ADD_ZOOM;
+        setFontSize();
     }
+}
+
+void resetZoom()
+{
+    state->currentFontSize = DEFAULT_ZOOM;
+    setFontSize();
 }
 
 void reloadCss(GtkWidget* widget)
