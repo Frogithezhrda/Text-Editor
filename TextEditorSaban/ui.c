@@ -14,26 +14,31 @@ void showMessage(const char* message)
     MessageBox(NULL, wmessage, L"Info!", MB_OK | MB_ICONINFORMATION);
     free(wmessage);
 }
-void activateUI(GtkApplication* app, gpointer user_data)
+void activateUI(GtkApplication* app, gpointer userData)
 {
     GdkPixbuf* appIcon = NULL;
     GtkWidget* appBox = NULL;
     GtkWidget* menuBar = NULL;
     GtkWidget* fileMenu = NULL;
+    GtkWidget* helpMenu = NULL;
     GtkWidget* optionsMenu = NULL;
     GtkWidget* fileMenuFile = NULL;
+    GtkWidget* helpMenuHelp = NULL;
+    GtkWidget* helpMenuAbout = NULL;
     GtkWidget* fileMenuSave = NULL;
     GtkWidget* fileMenuSaveAs = NULL;
+    GtkWidget* editMenuZoomIn = NULL;
+    GtkWidget* editMenuZoomOut = NULL;
     GtkWidget* fileMenuLoad = NULL;
     GtkWidget* fileMenuQuit = NULL;
     GtkWidget* sep = NULL;
-    GtkWidget* fileMenuOptions = NULL;
+    GtkWidget* editMenuOptions = NULL;
     GtkWidget* scrolledWindow = NULL;
     GtkAccelGroup* accelGroup = NULL;
     state = (AppState*)calloc(1, sizeof(AppState));
     //intializing the app
     state->appWindow = gtk_application_window_new(app);
-
+    state->currentFontSize = 12;
     gtk_window_set_title(GTK_WINDOW(state->appWindow), "Saban Text Editor");
     gtk_window_set_default_size(GTK_WINDOW(state->appWindow), WIDTH, HEIGHT);
     gtk_window_set_position(GTK_WINDOW(state->appWindow), GTK_WIN_POS_CENTER);
@@ -68,26 +73,38 @@ void activateUI(GtkApplication* app, gpointer user_data)
 
     loadFile();
     fileMenu = gtk_menu_new();
+    helpMenu = gtk_menu_new();
     fileMenuFile = gtk_menu_item_new_with_label("File");
+    helpMenuHelp = gtk_menu_item_new_with_label("Help");
+    helpMenuAbout = gtk_menu_item_new_with_label("About");
     fileMenuSave = gtk_menu_item_new_with_label("Save");
     fileMenuSaveAs = gtk_menu_item_new_with_label("Save As");
     fileMenuLoad = gtk_menu_item_new_with_label("Load");
     fileMenuQuit = gtk_menu_item_new_with_label("Quit");
+    editMenuZoomIn = gtk_menu_item_new_with_label("Zoom In");
+    editMenuZoomOut = gtk_menu_item_new_with_label("Zoom Out");
     sep = gtk_separator_menu_item_new();
     optionsMenu = gtk_menu_new();
-    fileMenuOptions = gtk_menu_item_new_with_label("Edit");
+    editMenuOptions = gtk_menu_item_new_with_label("Edit");
     //adding the options to the order
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(fileMenuFile), fileMenu);
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(fileMenuOptions), optionsMenu);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(editMenuOptions), optionsMenu);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(helpMenuHelp), helpMenu);
     gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), fileMenuFile);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), fileMenuOptions);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), editMenuOptions);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), helpMenuHelp);
     //widget arr for appending
-    GtkWidget* widgetArr[WIDGET_COUNT] = { state->appWindow, menuBar, fileMenu, optionsMenu, fileMenuFile, fileMenuSave, fileMenuSaveAs, fileMenuLoad, fileMenuQuit, sep, fileMenuOptions, state->textView };
+    GtkWidget* widgetArr[WIDGET_COUNT] = { state->appWindow, menuBar, fileMenu, helpMenu, optionsMenu, fileMenuFile, fileMenuSave, fileMenuSaveAs, fileMenuLoad, fileMenuQuit, sep, editMenuOptions, helpMenuHelp, helpMenuAbout, editMenuZoomIn, editMenuZoomOut, state->textView };
     //appending only needed staff
-    for (int i = 5; i < 10; i++)
+    for (int i = 6; i < 11; i++)
     {
         gtk_menu_shell_append(GTK_MENU_SHELL(fileMenu), widgetArr[i]);
     }
+    gtk_menu_shell_append(GTK_MENU_SHELL(helpMenu), helpMenuAbout);
+
+    gtk_menu_shell_append(GTK_MENU_SHELL(optionsMenu), editMenuZoomIn);
+    gtk_menu_shell_append(GTK_MENU_SHELL(optionsMenu), editMenuZoomOut);
+
     //loading each widget the css for it
 
     for (int i = 0; i < WIDGET_COUNT; i++)
@@ -108,7 +125,9 @@ void activateUI(GtkApplication* app, gpointer user_data)
     g_signal_connect(fileMenuSaveAs, "activate", G_CALLBACK(saveAsFile), NULL);
     g_signal_connect(fileMenuLoad, "activate", G_CALLBACK(loadFileOption), NULL);
     g_signal_connect(fileMenuQuit, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-    g_signal_connect(fileMenuOptions, "activate", G_CALLBACK(openOptionsDialog), NULL);
+    g_signal_connect(editMenuZoomIn, "activate", G_CALLBACK(zoomIn), NULL);
+    g_signal_connect(editMenuZoomOut, "activate", G_CALLBACK(zoomOut), NULL);
+    g_signal_connect(helpMenuAbout, "activate", G_CALLBACK(aboutOption), NULL);
     //when pressing ctrl + s will call the save function
     accelGroup = gtk_accel_group_new();
     gtk_window_add_accel_group(GTK_WINDOW(state->appWindow), accelGroup);
@@ -155,9 +174,35 @@ void loadFileOption()
     gtk_widget_destroy(dialog);
 }
 
-void openOptionsDialog()
+void aboutOption()
 {
-    fprintf(stdout, "[*] %s\n", "Open options..");
+    showMessage("Text Editor By Omer Saban!");
+}
+
+void setFontSize(int fontSize)
+{
+    PangoFontDescription* fontDesc = pango_font_description_from_string("Monospace");
+    pango_font_description_set_size(fontDesc, fontSize * PANGO_SCALE);
+    gtk_widget_override_font(GTK_WIDGET(state->textView), fontDesc);
+    pango_font_description_free(fontDesc);
+}
+
+void zoomIn() 
+{
+    if (state->currentFontSize < 72)
+    {  // max limit
+        state->currentFontSize += 2;
+        setFontSize(state->currentFontSize);
+    }
+}
+
+void zoomOut() 
+{
+    if (state->currentFontSize > 6) 
+    {  // min limit
+        state->currentFontSize -= 2;
+        setFontSize(state->currentFontSize);
+    }
 }
 
 void reloadCss(GtkWidget* widget)
