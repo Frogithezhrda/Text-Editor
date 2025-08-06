@@ -58,18 +58,6 @@ void activateUI(GtkApplication* app, gpointer user_data)
 
 
     GtkSourceLanguageManager* lm = gtk_source_language_manager_get_default();
-    const gchar* const* default_paths = gtk_source_language_manager_get_search_path(lm);
-GStrvBuilder* builder = g_strv_builder_new();
-
-// Add your custom path
-g_strv_builder_add(builder, "resources/language-specs");
-
-// Now re-add all existing paths
-for (int i = 0; default_paths && default_paths[i]; i++) {
-    g_strv_builder_add(builder, default_paths[i]);
-}
-gchar** new_paths = g_strv_builder_end(builder);
-
 
     GtkSourceLanguage* lang = gtk_source_language_manager_get_language(lm, "c");
     if (!lang)
