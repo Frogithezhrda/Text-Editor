@@ -102,13 +102,15 @@ void activateUI(GtkApplication* app, gpointer userData)
     gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), editMenuOptions);
     gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), helpMenuHelp);
     //widget arr for appending
-    GtkWidget* widgetArr[WIDGET_COUNT] = { state->appWindow, menuBar, fileMenu, helpMenu, optionsMenu, fileMenuFile, fileMenuSave, fileMenuSaveAs, fileMenuLoad, sep, helpMenuQuit, editMenuOptions, helpMenuHelp, helpMenuAbout, editMenuZoomIn, editMenuZoomOut, editMenuZoomReset, state->textView };
+    GtkWidget* widgetArr[WIDGET_COUNT] = { state->appWindow, menuBar, fileMenu, helpMenu, optionsMenu, fileMenuFile, fileMenuSave, fileMenuSaveAs, fileMenuLoad, helpMenuQuit, sep, editMenuOptions, helpMenuHelp, helpMenuAbout, editMenuZoomIn, editMenuZoomOut, editMenuZoomReset, state->textView };
     //appending only needed staff
-    for (int i = 6; i < 11; i++)
+    for (int i = 6; i < 9; i++)
     {
         gtk_menu_shell_append(GTK_MENU_SHELL(fileMenu), widgetArr[i]);
     }
     gtk_menu_shell_append(GTK_MENU_SHELL(helpMenu), helpMenuAbout);
+    gtk_menu_shell_append(GTK_MENU_SHELL(helpMenu), sep);
+    gtk_menu_shell_append(GTK_MENU_SHELL(helpMenu), helpMenuQuit);
 
     gtk_menu_shell_append(GTK_MENU_SHELL(optionsMenu), editMenuZoomIn);
     gtk_menu_shell_append(GTK_MENU_SHELL(optionsMenu), editMenuZoomOut);
