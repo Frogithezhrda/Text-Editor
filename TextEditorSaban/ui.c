@@ -11,7 +11,7 @@ void showMessage(const char* message)
     wchar_t* wmessage = (wchar_t*)malloc(size * sizeof(wchar_t));
     MultiByteToWideChar(CP_UTF8, 0, message, -1, wmessage, size);
 
-    MessageBox(NULL, wmessage, L"Info!", MB_OK | MB_ICONINFORMATION);
+    MessageBox(NULL, wmessage, L"Text Editor Saban", MB_OK | MB_ICONINFORMATION);
     free(wmessage);
 }
 void activateUI(GtkApplication* app, gpointer userData)
@@ -36,7 +36,6 @@ void activateUI(GtkApplication* app, gpointer userData)
     GtkWidget* editMenuOptions = NULL;
     GtkWidget* scrolledWindow = NULL;
     GtkAccelGroup* accelGroup = NULL;
-    state = (AppState*)calloc(1, sizeof(AppState));
     //intializing the app
     state->appWindow = gtk_application_window_new(app);
     state->currentFontSize = 12;
@@ -71,8 +70,15 @@ void activateUI(GtkApplication* app, gpointer userData)
         g_warning("Language 'c' not found");
     }
     gtk_source_buffer_set_language(buf, lang);
+    DWORD  dwThreadId;
+    HANDLE loadThread = CreateThread(
+        NULL,                   // default security attributes
+        0,                      // use default stack size  
+        loadFileToText,       // thread function name
+        NULL,          // argument to thread function 
+        0,                      // use default creation flags 
+        &dwThreadId);   // returns the thread identifier 
 
-    loadFile();
     fileMenu = gtk_menu_new();
     helpMenu = gtk_menu_new();
     fileMenuFile = gtk_menu_item_new_with_label("File");

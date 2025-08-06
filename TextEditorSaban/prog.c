@@ -8,7 +8,7 @@ static void activate(GtkApplication* app, gpointer user_data)
 
 
 #if _DEBUG
-int main()
+int main(int argc, char* argv[])
 {
     GtkApplication* app = NULL;
     int status = 0;
@@ -22,11 +22,17 @@ int main()
     }
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
     //getting the fileName from the openwith
-    //if (*lpCmdLine != '\0')
-    //{
-    //    state->filename = g_strdup(lpCmdLine);
-    //    trim_quotes(state->filename);
-    //}
+    state = (AppState*)calloc(1, sizeof(AppState));
+    printf("argc = %d\n", argc);
+    for (int i = 0; i < argc; i++) {
+        printf("argv[%d] = %s\n", i, argv[i]);
+    }
+    if (argc == 2)
+    {
+
+        state->filename = g_strdup(argv[1]);
+        trimQuotes(state->filename);
+    }
     status = g_application_run(G_APPLICATION(app), NULL, NULL);
     g_object_unref(app);
     if (state->filename) g_free(state->filename);
@@ -48,6 +54,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
     //getting the fileName from the openwith
+    state = (AppState*)calloc(1, sizeof(AppState));
     if (*lpCmdLine != '\0')
     {
         state->filename = g_strdup(lpCmdLine);

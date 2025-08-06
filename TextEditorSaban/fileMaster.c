@@ -77,16 +77,19 @@ File loadFile()
     File file;
     if (!isFileNameExist())
     {
-        return;
+        return file;
     }
     file.file = fopen(state->filename, "r");
     if (file.file == NULL)
     {
         showMessage("Couldnt Open!");
     }
-    fseek(file.file, 0, SEEK_END);
-    file.length = ftell(file.file);
-    fseek(file.file, 0, SEEK_SET);
+    else
+    {
+        fseek(file.file, 0, SEEK_END);
+        file.length = ftell(file.file);
+        fseek(file.file, 0, SEEK_SET);
+    }
     return file;
 }
 
@@ -101,26 +104,29 @@ DWORD WINAPI loadFileToText(LPVOID lpParam)
 {
     GtkTextBuffer* buffer = NULL;
     File file = loadFile();
-    TextPTR* textPtr = (TextPTR*)malloc(sizeof(TextPTR));
-
-    textPtr->text = (gchar*)malloc(sizeof(char) * (file.length) + 1);
-    textPtr->textName = (gchar*)malloc(sizeof(char) * (strlen(state->filename) + strlen(TITLE_TEXT)) + 1);
-    if (textPtr->text)
+    TextPTR* textPtr = NULL;
+    if (file.file)
     {
-        fread(textPtr->text, 1, file.length, file.file);
-        textPtr->text[file.length] = '\0';
-        fclose(file.file);
-
-        buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(state->textView));
-        if (buffer == NULL)
+        textPtr = (TextPTR*)malloc(sizeof(TextPTR));
+        textPtr->text = (gchar*)malloc(sizeof(char) * (file.length) + 1);
+        textPtr->textName = (gchar*)malloc(sizeof(char) * (strlen(state->filename) + strlen(TITLE_TEXT)) + 1);
+        if (textPtr->text)
         {
-            showMessage("Failed to get text buffer");
-            return;
-        }
-        strcpy(textPtr->textName, TITLE_TEXT);
-        strcat(textPtr->textName, state->filename);
-    }
+            fread(textPtr->text, 1, file.length, file.file);
+            textPtr->text[file.length] = '\0';
+            fclose(file.file);
 
-    g_idle_add((GSourceFunc)updateTextViewOnMainThread, textPtr);
+            buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(state->textView));
+            if (buffer == NULL)
+            {
+                showMessage("Failed to get text buffer");
+                return;
+            }
+            strcpy(textPtr->textName, TITLE_TEXT);
+            strcat(textPtr->textName, state->filename);
+        }
+
+        g_idle_add((GSourceFunc)updateTextViewOnMainThread, textPtr);
+    }
     return 0;
 }
