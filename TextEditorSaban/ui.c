@@ -290,7 +290,7 @@ gboolean updateTextViewOnMainThread(TextPTR* textPtr)
     gtk_window_set_title(GTK_WINDOW(state->appWindow), textPtr->textName);
     gtk_text_buffer_set_text(buffer, textPtr->text, -1);
     free(textPtr->textName);
-    free(textPtr->text);
+    //free(textPtr->text);
     free(textPtr);
     return FALSE; // remove from idle queue
 }

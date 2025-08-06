@@ -105,6 +105,10 @@ DWORD WINAPI loadFileToText(LPVOID lpParam)
     GtkTextBuffer* buffer = NULL;
     File file = loadFile();
     TextPTR* textPtr = NULL;
+    gsize bytes_read;
+    gsize bytes_written;
+    GError* error = NULL;
+
     if (file.file)
     {
         textPtr = (TextPTR*)malloc(sizeof(TextPTR));
@@ -115,8 +119,22 @@ DWORD WINAPI loadFileToText(LPVOID lpParam)
             fread(textPtr->text, 1, file.length, file.file);
             textPtr->text[file.length] = '\0';
             fclose(file.file);
-
+            if (!g_utf8_validate(textPtr->text, file.length, NULL)) 
+            {
+                gchar* converted = g_locale_to_utf8(textPtr->text, file.length, NULL, NULL, &error);
+                if (!converted) 
+                {
+                    showMessage(error->message);
+                    g_error_free(error);
+                    free(textPtr->text);
+                    return 0;
+                }
+                free(textPtr->text);
+                textPtr->text = converted;
+                textPtr->text[file.length - 1] = '\0';
+            }
             buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(state->textView));
+
             if (buffer == NULL)
             {
                 showMessage("Failed to get text buffer");
