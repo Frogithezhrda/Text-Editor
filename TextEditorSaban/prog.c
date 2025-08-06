@@ -13,8 +13,10 @@ int main()
     GtkApplication* app = NULL;
     int status = 0;
     g_setenv("GSETTINGS_SCHEMA_DIR", "C:\\msys64\\mingw64\\share\\glib-2.0\\schemas", TRUE);
+    g_setenv("GTKSOURCEVIEW_LANGUAGE_RNG", "C:/Users/Omer/Documents/Text-Editor/TextEditorSaban/share/gtksourceview-3.0/language-specs/language.rng", TRUE);
     app = gtk_application_new("my.texteditor", G_APPLICATION_FLAGS_NONE);
-    if (!app) {
+    if (!app)
+    {
         showMessage("Failed to initialize GTK app!");
         return 0;
     }
@@ -22,8 +24,8 @@ int main()
     //getting the fileName from the openwith
     //if (*lpCmdLine != '\0')
     //{
-    //    filename = g_strdup(lpCmdLine);
-    //    trim_quotes(filename);
+    //    state->filename = g_strdup(lpCmdLine);
+    //    trim_quotes(state->filename);
     //}
     status = g_application_run(G_APPLICATION(app), NULL, NULL);
     g_object_unref(app);
@@ -57,3 +59,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     return 0;
 }
 #endif
+    

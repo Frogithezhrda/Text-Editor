@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<style-scheme id="saban-dark" _name="Saban Dark" version="1.0">
-  <author>Omer Saban</author>
-  <description>Dark syntax theme matching GTK interface</description>
+<!--
 
-  <!-- Editor background and default text -->
-  <style name="background" background="#313131"/>
+ This file is part of GtkSourceView
 
-  <!-- Gutter -->
-  <style name="line-numbers" foreground="#ffffff" background="#313131"/>
+ Copyright (C) 2007 GtkSourceView team
+ Author: Paolo Borelli <pborelli@gnome.org>
 
+ GtkSourceView is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+
+ GtkSourceView is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+-->
+
+<style-scheme id="oblivion" _name="Oblivion" version="1.0">
+
+  <author>Paolo Borelli</author>
+  <_description>Dark color scheme using the Tango color palette</_description>
+
+  <!-- Tango Palette -->
   <color name="butter1"                     value="#fce94f"/>
   <color name="butter2"                     value="#edd400"/>
   <color name="butter3"                     value="#c4a000"/>
@@ -21,7 +40,7 @@
   <color name="skyblue1"                    value="#729fcf"/>
   <color name="skyblue2"                    value="#3465a4"/>
   <color name="skyblue3"                    value="#204a87"/>
-  <color name="plum1"                       value="#2c9ef5"/>
+  <color name="plum1"                       value="#ad7fa8"/>
   <color name="plum2"                       value="#75507b"/>
   <color name="plum3"                       value="#5c3566"/>
   <color name="chocolate1"                  value="#e9b96e"/>
@@ -47,6 +66,7 @@
   <style name="cursor"                      foreground="aluminium2"/>
   <style name="secondary-cursor"            foreground="aluminium4-3-blend"/>
   <style name="current-line"                background="aluminium5"/>
+  <style name="line-numbers"                foreground="aluminium5" background="#black"/>
   <style name="draw-spaces"                 foreground="aluminium4"/>
   <style name="background-pattern"          background="aluminium6-5-blend"/>
 
@@ -87,8 +107,6 @@
   <style name="def:warning"                 foreground="aluminium1" background="plum1"/>
   <style name="def:note"                    background="butter1" foreground="aluminium4" bold="true"/>
   <style name="def:underlined"              italic="true" underline="single"/>
-  <style name="def:function" foreground="#f5b92c" />
-  <style name="def:keyword" foreground="#02b076" />
 
   <!-- Heading styles, uncomment to enable -->
   <!--
@@ -111,6 +129,6 @@
 
   <style name="latex:command"               foreground="chameleon1" bold="true"/>
   <style name="latex:include"               use-style="def:preprocessor"/>
-  <style name="latex:return"               foreground="chameleon1" bold="true"/>
 
 </style-scheme>
+

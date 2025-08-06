@@ -14,7 +14,6 @@ void showMessage(const char* message)
     MessageBox(NULL, wmessage, L"Info!", MB_OK | MB_ICONINFORMATION);
     free(wmessage);
 }
-
 void activateUI(GtkApplication* app, gpointer user_data)
 {
     GdkPixbuf* appIcon = NULL;
@@ -53,9 +52,31 @@ void activateUI(GtkApplication* app, gpointer user_data)
     GtkSourceStyleScheme* scheme = gtk_source_style_scheme_manager_get_scheme(mgr, "saban-dark");
 
     if (scheme)
+    {
         gtk_source_buffer_set_style_scheme(buf, scheme);
-    else
-        g_warning("Style scheme 'saban-dark' not found");
+    }
+
+
+    GtkSourceLanguageManager* lm = gtk_source_language_manager_get_default();
+    const gchar* const* default_paths = gtk_source_language_manager_get_search_path(lm);
+GStrvBuilder* builder = g_strv_builder_new();
+
+// Add your custom path
+g_strv_builder_add(builder, "resources/language-specs");
+
+// Now re-add all existing paths
+for (int i = 0; default_paths && default_paths[i]; i++) {
+    g_strv_builder_add(builder, default_paths[i]);
+}
+gchar** new_paths = g_strv_builder_end(builder);
+
+
+    GtkSourceLanguage* lang = gtk_source_language_manager_get_language(lm, "c");
+    if (!lang)
+    {
+        g_warning("Language 'c' not found");
+    }
+    gtk_source_buffer_set_language(buf, lang);
 
     loadFile();
     fileMenu = gtk_menu_new();
@@ -66,7 +87,7 @@ void activateUI(GtkApplication* app, gpointer user_data)
     fileMenuQuit = gtk_menu_item_new_with_label("Quit");
     sep = gtk_separator_menu_item_new();
     optionsMenu = gtk_menu_new();
-    fileMenuOptions = gtk_menu_item_new_with_label("Options");
+    fileMenuOptions = gtk_menu_item_new_with_label("Edit");
     //adding the options to the order
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(fileMenuFile), fileMenu);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(fileMenuOptions), optionsMenu);
