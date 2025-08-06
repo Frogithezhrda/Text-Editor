@@ -1,154 +1,153 @@
 #include "ui.h"
 #include "fileMaster.h"
 
-
 AppState* state = NULL;
 
-void showMessage(const char* message)
-{
-    //i needed to show a message so i convert it to UTF-8
-    int size = MultiByteToWideChar(CP_UTF8, 0, message, -1, NULL, 0);
-    wchar_t* wmessage = (wchar_t*)malloc(size * sizeof(wchar_t));
-    MultiByteToWideChar(CP_UTF8, 0, message, -1, wmessage, size);
-
-    MessageBox(NULL, wmessage, L"Text Editor Saban", MB_OK | MB_ICONINFORMATION);
-    free(wmessage);
-}
 void activateUI(GtkApplication* app, gpointer userData)
 {
-    GdkPixbuf* appIcon = NULL;
-    GtkWidget* appBox = NULL;
-    GtkWidget* menuBar = NULL;
-    GtkWidget* fileMenu = NULL;
-    GtkWidget* helpMenu = NULL;
-    GtkWidget* optionsMenu = NULL;
-    GtkWidget* fileMenuFile = NULL;
-    GtkWidget* helpMenuHelp = NULL;
-    GtkWidget* helpMenuAbout = NULL;
-    GtkWidget* fileMenuSave = NULL;
-    GtkWidget* fileMenuSaveAs = NULL;
-    GtkWidget* editMenuZoomIn = NULL;
-    GtkWidget* editMenuZoomOut = NULL;
-    GtkWidget* editMenuZoomReset = NULL;
-    GtkWidget* fileMenuLoad = NULL;
-    GtkWidget* helpMenuQuit = NULL;
-    GtkWidget* sep = NULL;
-    GtkWidget* editMenuOptions = NULL;
-    GtkWidget* scrolledWindow = NULL;
-    GtkAccelGroup* accelGroup = NULL;
+    UIWidgets* ui = (UIWidgets*)malloc(sizeof(UIWidgets));
+    DWORD  dwThreadId;
+
     //intializing the app
+    setupWindow(app, ui);
+    //creating a menu bar
+    setupMenu(app, ui);
+    //creating options
+    setupTextView(app, ui);
+
+    //opening the loading thread if needed to load then it would load
+    openLoadThread();
+
+    //loading each widget the css for it
+    reloadCss();
+    // showing the widgets
+    gtk_widget_show_all(state->appWindow);
+    // calling for each button its function
+    setupSignals(app, ui);
+    
+    state->ui = ui;
+}
+
+//Setup Handling
+void setupWindow(GtkApplication* app, UIWidgets* widgets)
+{
     state->appWindow = gtk_application_window_new(app);
-    state->currentFontSize = 12;
+    state->currentFontSize = DEFAULT_ZOOM;
     gtk_window_set_title(GTK_WINDOW(state->appWindow), "Saban Text Editor");
     gtk_window_set_default_size(GTK_WINDOW(state->appWindow), WIDTH, HEIGHT);
     gtk_window_set_position(GTK_WINDOW(state->appWindow), GTK_WIN_POS_CENTER);
     //creating an app box
-    appBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_container_add(GTK_CONTAINER(state->appWindow), appBox);
-    //creating a menu bar
-    menuBar = gtk_menu_bar_new();
-    gtk_box_pack_start(GTK_BOX(appBox), menuBar, FALSE, FALSE, 0);
-    //creating options
-    state->textView = gtk_source_view_new();
-    gtk_source_view_set_show_line_numbers(GTK_SOURCE_VIEW(state->textView), TRUE);
-    GtkSourceBuffer* buf = GTK_SOURCE_BUFFER(gtk_text_view_get_buffer(GTK_TEXT_VIEW(state->textView)));
-    GtkSourceStyleSchemeManager* mgr = gtk_source_style_scheme_manager_get_default();
-    gtk_source_style_scheme_manager_append_search_path(mgr, "resources/styles/");
-    GtkSourceStyleScheme* scheme = gtk_source_style_scheme_manager_get_scheme(mgr, "saban-dark");
+    widgets->appBox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_add(GTK_CONTAINER(state->appWindow), widgets->appBox);
+}
 
-    if (scheme)
-    {
-        gtk_source_buffer_set_style_scheme(buf, scheme);
-    }
+void setupMenu(GtkApplication* app, UIWidgets* widgets)
+{
+    widgets->menuBar = gtk_menu_bar_new();
+    gtk_box_pack_start(GTK_BOX(widgets->appBox), widgets->menuBar, FALSE, FALSE, 0);
+    //main menus
+    widgets->menus.file = gtk_menu_new();
+    widgets->menus.help = gtk_menu_new();
+    widgets->menus.edit = gtk_menu_new();
+    //menu widget
+    widgets->fileMenu = gtk_menu_item_new_with_label("File");
+    widgets->helpMenu = gtk_menu_item_new_with_label("Help");
+    widgets->optionsMenu = gtk_menu_item_new_with_label("Edit");
 
+    //action items
+    widgets->actions.about = gtk_menu_item_new_with_label("About");
+    widgets->actions.save = gtk_menu_item_new_with_label("Save");
+    widgets->actions.saveAs = gtk_menu_item_new_with_label("Save As");
+    widgets->actions.load = gtk_menu_item_new_with_label("Load");
+    widgets->actions.quit = gtk_menu_item_new_with_label("Quit");
 
-    GtkSourceLanguageManager* lm = gtk_source_language_manager_get_default();
-
-    GtkSourceLanguage* lang = gtk_source_language_manager_get_language(lm, "c");
-    if (!lang)
-    {
-        g_warning("Language 'c' not found");
-    }
-    gtk_source_buffer_set_language(buf, lang);
-    DWORD  dwThreadId;
-    HANDLE loadThread = CreateThread(
-        NULL,                   // default security attributes
-        0,                      // use default stack size  
-        loadFileToText,       // thread function name
-        NULL,          // argument to thread function 
-        0,                      // use default creation flags 
-        &dwThreadId);   // returns the thread identifier 
-
-    fileMenu = gtk_menu_new();
-    helpMenu = gtk_menu_new();
-    fileMenuFile = gtk_menu_item_new_with_label("File");
-    helpMenuHelp = gtk_menu_item_new_with_label("Help");
-    helpMenuAbout = gtk_menu_item_new_with_label("About");
-    fileMenuSave = gtk_menu_item_new_with_label("Save");
-    fileMenuSaveAs = gtk_menu_item_new_with_label("Save As");
-    fileMenuLoad = gtk_menu_item_new_with_label("Load");
-    helpMenuQuit = gtk_menu_item_new_with_label("Quit");
-    editMenuZoomIn = gtk_menu_item_new_with_label("Zoom In");
-    editMenuZoomOut = gtk_menu_item_new_with_label("Zoom Out");
-    editMenuZoomReset = gtk_menu_item_new_with_label("Reset Zoom");
-    sep = gtk_separator_menu_item_new();
-    optionsMenu = gtk_menu_new();
-    editMenuOptions = gtk_menu_item_new_with_label("Edit");
+    //zoomin items
+    widgets->zoom.zoomIn = gtk_menu_item_new_with_label("Zoom In");
+    widgets->zoom.zoomOut = gtk_menu_item_new_with_label("Zoom Out");
+    widgets->zoom.zoomReset = gtk_menu_item_new_with_label("Reset Zoom");
+    initVector(&widgets->separators, SEPARATORS_COUNT);
+    addToVector(widgets->separators, gtk_separator_menu_item_new());
+    
     //adding the options to the order
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(fileMenuFile), fileMenu);
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(editMenuOptions), optionsMenu);
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(helpMenuHelp), helpMenu);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), fileMenuFile);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), editMenuOptions);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), helpMenuHelp);
-    //widget arr for appending
-    GtkWidget* widgetArr[WIDGET_COUNT] = { state->appWindow, menuBar, fileMenu, helpMenu, optionsMenu, fileMenuFile, fileMenuSave, fileMenuSaveAs, fileMenuLoad, helpMenuQuit, sep, editMenuOptions, helpMenuHelp, helpMenuAbout, editMenuZoomIn, editMenuZoomOut, editMenuZoomReset, state->textView };
-    //appending only needed staff
-    for (int i = 6; i < 9; i++)
-    {
-        gtk_menu_shell_append(GTK_MENU_SHELL(fileMenu), widgetArr[i]);
-    }
-    gtk_menu_shell_append(GTK_MENU_SHELL(helpMenu), helpMenuAbout);
-    gtk_menu_shell_append(GTK_MENU_SHELL(helpMenu), sep);
-    gtk_menu_shell_append(GTK_MENU_SHELL(helpMenu), helpMenuQuit);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(widgets->fileMenu), widgets->menus.file);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(widgets->optionsMenu), widgets->menus.edit);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(widgets->helpMenu), widgets->menus.help);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menuBar), widgets->fileMenu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menuBar), widgets->optionsMenu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menuBar), widgets->helpMenu);
 
-    gtk_menu_shell_append(GTK_MENU_SHELL(optionsMenu), editMenuZoomIn);
-    gtk_menu_shell_append(GTK_MENU_SHELL(optionsMenu), editMenuZoomOut);
-    gtk_menu_shell_append(GTK_MENU_SHELL(optionsMenu), editMenuZoomReset);
 
-    //loading each widget the css for it
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.file), widgets->actions.save);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.file), widgets->actions.saveAs);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.file), widgets->actions.load);
 
-    for (int i = 0; i < WIDGET_COUNT; i++)
-    {
-        reloadCss(widgetArr[i]);
-    }
-    //creating a text view which could be scrolled when needed
-    scrolledWindow = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_container_add(GTK_CONTAINER(scrolledWindow), state->textView);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.help), widgets->actions.about);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.help), widgets->separators->widgetVector);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.help), widgets->actions.quit);
 
-    gtk_box_pack_start(GTK_BOX(appBox), scrolledWindow, TRUE, TRUE, 0);
-    // showing the widgets
-    gtk_widget_show_all(state->appWindow);
-    // calling for each button its function
-    g_signal_connect(state->appWindow, "destroy", G_CALLBACK(gtk_main_quit), NULL);
-    g_signal_connect(fileMenuSave, "activate", G_CALLBACK(saveFile), NULL);
-    g_signal_connect(fileMenuSaveAs, "activate", G_CALLBACK(saveAsFile), NULL);
-    g_signal_connect(fileMenuLoad, "activate", G_CALLBACK(loadFileOption), NULL);
-    g_signal_connect(helpMenuQuit, "activate", G_CALLBACK(quitOption), app);
-    g_signal_connect(editMenuZoomIn, "activate", G_CALLBACK(zoomIn), NULL);
-    g_signal_connect(editMenuZoomOut, "activate", G_CALLBACK(zoomOut), NULL);
-    g_signal_connect(helpMenuAbout, "activate", G_CALLBACK(aboutOption), NULL);
-    g_signal_connect(editMenuZoomReset, "activate", G_CALLBACK(resetZoom), NULL);
-    //when pressing ctrl + s will call the save function
-    accelGroup = gtk_accel_group_new();
-    gtk_window_add_accel_group(GTK_WINDOW(state->appWindow), accelGroup);
-    gtk_accel_group_connect(accelGroup, GDK_KEY_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(saveFile), NULL, NULL));
-    gtk_accel_group_connect(accelGroup, GDK_KEY_equal, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(zoomIn), NULL, NULL));
-    gtk_accel_group_connect(accelGroup, GDK_KEY_minus, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(zoomOut), NULL, NULL));
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.edit), widgets->zoom.zoomIn);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.edit), widgets->zoom.zoomOut);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.edit), widgets->zoom.zoomReset);
 
 }
 
+void setupTextView(GtkApplication* app, UIWidgets* widgets)
+{
+    state->uiText = (UITextView*)malloc(sizeof(UITextView));
+    state->textView = gtk_source_view_new();
+
+    //adding number lines handling
+    gtk_source_view_set_show_line_numbers(GTK_SOURCE_VIEW(state->textView), TRUE);
+    state->uiText->buf = GTK_SOURCE_BUFFER(gtk_text_view_get_buffer(GTK_TEXT_VIEW(state->textView)));
+    state->uiText->mgr = gtk_source_style_scheme_manager_get_default();
+    gtk_source_style_scheme_manager_append_search_path(state->uiText->mgr, "resources/styles/"); //s earch path
+    state->uiText->scheme = gtk_source_style_scheme_manager_get_scheme(state->uiText->mgr, "saban-dark"); //finding a new style using xml
+    //checking if the scheme exists
+    if (state->uiText->scheme)
+        gtk_source_buffer_set_style_scheme(state->uiText->buf, state->uiText->scheme);
+
+    //language handling
+    state->uiText->lm = gtk_source_language_manager_get_default();
+    state->uiText->lang = gtk_source_language_manager_get_language(state->uiText->lm, "c"); //getting the language
+    //if the language not found warn
+    if (!state->uiText->lang)
+        g_warning("Language 'c' not found");
+    //setting the language
+    gtk_source_buffer_set_language(state->uiText->buf, state->uiText->lang);
+
+    //handle the scrolling
+    widgets->scrolledWindow = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(widgets->scrolledWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_container_add(GTK_CONTAINER(widgets->scrolledWindow), state->textView);
+
+    gtk_box_pack_start(GTK_BOX(widgets->appBox), widgets->scrolledWindow, TRUE, TRUE, 0);
+
+}
+
+void setupSignals(GtkApplication* app, UIWidgets* widgets)
+{
+    //button signals
+    g_signal_connect(widgets->actions.save, "activate", G_CALLBACK(saveFile), NULL);
+    g_signal_connect(widgets->actions.saveAs, "activate", G_CALLBACK(saveAsFile), NULL);
+    g_signal_connect(widgets->actions.load, "activate", G_CALLBACK(loadFileOption), NULL);
+
+    g_signal_connect(widgets->actions.quit, "activate", G_CALLBACK(quitOption), app);
+    g_signal_connect(widgets->actions.about, "activate", G_CALLBACK(aboutOption), NULL);
+
+    g_signal_connect(widgets->zoom.zoomIn, "activate", G_CALLBACK(zoomIn), NULL);
+    g_signal_connect(widgets->zoom.zoomOut, "activate", G_CALLBACK(zoomOut), NULL);
+    g_signal_connect(widgets->zoom.zoomReset, "activate", G_CALLBACK(resetZoom), NULL);
+
+    //handling keyboard signals
+    widgets->accelGroup = gtk_accel_group_new();
+    gtk_window_add_accel_group(GTK_WINDOW(state->appWindow), widgets->accelGroup);
+    gtk_accel_group_connect(widgets->accelGroup, GDK_KEY_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(saveFile), NULL, NULL));
+    gtk_accel_group_connect(widgets->accelGroup, GDK_KEY_equal, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(zoomIn), NULL, NULL));
+    gtk_accel_group_connect(widgets->accelGroup, GDK_KEY_minus, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(zoomOut), NULL, NULL));
+
+}
+
+//Option Handling
 void loadFileOption()
 {
     GtkWidget* dialog = NULL;
@@ -173,15 +172,7 @@ void loadFileOption()
         }
         state->filename = gtk_file_chooser_get_filename(fileChooser);
         //reading from the file name and getting it into a file
-        DWORD  dwThreadId;
-        HANDLE loadThread = CreateThread(
-            NULL,                   // default security attributes
-            0,                      // use default stack size  
-            loadFileToText,       // thread function name
-            NULL,          // argument to thread function 
-            0,                      // use default creation flags 
-            &dwThreadId);   // returns the thread identifier 
-
+        openLoadThread();
     }
 
     gtk_widget_destroy(dialog);
@@ -192,6 +183,8 @@ void aboutOption()
     showMessage("Text Editor By Omer Saban!");
 }
 
+
+//Zoom Handling
 void setFontSize()
 {
     PangoFontDescription* fontDesc = pango_font_description_from_string("Monospace");
@@ -230,9 +223,9 @@ void resetZoom()
     setFontSize();
 }
 
-void reloadCss(GtkWidget* widget)
+//Css Handling
+void reloadCss()
 {
-    GtkStyleContext* styleContext = NULL;
     GtkCssProvider* cssProvider = gtk_css_provider_new();
     gchar* cssData =
         "\n"
@@ -286,11 +279,30 @@ void reloadCss(GtkWidget* widget)
         "}\n";
 
     gtk_css_provider_load_from_data(cssProvider, cssData, -1, NULL);
-    styleContext = gtk_widget_get_style_context(widget);
-    gtk_style_context_add_provider(styleContext, GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+    gtk_style_context_add_provider_for_screen(
+        gdk_screen_get_default(),
+        GTK_STYLE_PROVIDER(cssProvider),
+        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+    );
+
     g_object_unref(cssProvider);
 }
 
+
+
+//Thread Handling/Message Handling
+void openLoadThread()
+{
+    DWORD  dwThreadId;
+    HANDLE loadThread = CreateThread(
+        NULL,                   // default security attributes
+        0,                      // use default stack size  
+        loadFileToText,       // thread function name
+        NULL,          // argument to thread function 
+        0,                      // use default creation flags 
+        &dwThreadId);   // returns the thread identifier 
+}
 
 gboolean updateTextViewOnMainThread(TextPTR* textPtr)
 {
@@ -301,4 +313,15 @@ gboolean updateTextViewOnMainThread(TextPTR* textPtr)
     //free(textPtr->text);
     free(textPtr);
     return FALSE; // remove from idle queue
+}
+
+void showMessage(const char* message)
+{
+    //i needed to show a message so i convert it to UTF-8
+    int size = MultiByteToWideChar(CP_UTF8, 0, message, -1, NULL, 0);
+    wchar_t* wmessage = (wchar_t*)malloc(size * sizeof(wchar_t));
+    MultiByteToWideChar(CP_UTF8, 0, message, -1, wmessage, size);
+
+    MessageBox(NULL, wmessage, L"Text Editor Saban", MB_OK | MB_ICONINFORMATION);
+    free(wmessage);
 }

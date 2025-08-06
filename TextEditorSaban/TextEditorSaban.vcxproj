@@ -147,6 +147,7 @@
     <ClCompile Include="fileMaster.c" />
     <ClCompile Include="prog.c" />
     <ClCompile Include="ui.c" />
+    <ClCompile Include="widgetVector.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="styles.css" />
@@ -155,6 +156,7 @@
     <ClInclude Include="fileMaster.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ui.h" />
+    <ClInclude Include="widgetVector.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TextEditorSaban.rc" />

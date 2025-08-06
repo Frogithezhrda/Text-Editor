@@ -23,7 +23,7 @@ void saveFile()
     if (state->appWindow == NULL || !isFileNameExist())
     {
         saveAsFile();
-        return 0;
+        return;
     }
 
     //if there is we get the buffer and the text
@@ -42,7 +42,7 @@ void saveFile()
 void saveAsFile()
 {
     GtkWidget* dialog;
-    GtkWidget* parentWindow = gtk_widget_get_toplevel(GTK_WIDGET(state->filename));
+    GtkWidget* parentWindow = gtk_widget_get_toplevel(GTK_WIDGET(state->appWindow));
     GtkFileChooser* fileChooser;
     //choosing where to open which will give us the file name
     dialog = gtk_file_chooser_dialog_new("Save As",
@@ -57,12 +57,16 @@ void saveAsFile()
 
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT)
     {
+        //removing memory leak
+        if (state->filename)
+            g_free(state->filename);
+
         state->filename = gtk_file_chooser_get_filename(fileChooser);
         printf("File selected: %s\n", state->filename);
 
         if (!isFileNameExist())
         {
-            return 0;
+            return;
         }
         //saving the file
         saveFile();
@@ -74,7 +78,7 @@ void saveAsFile()
 
 File loadFile()
 {
-    File file;
+    File file = { 0 };
     if (!isFileNameExist())
     {
         return file;
@@ -93,7 +97,7 @@ File loadFile()
     return file;
 }
 
-Cbool isFileNameExist()
+gboolean isFileNameExist()
 {
     if (state == NULL || state->filename == NULL || !strcmp(state->filename, "")) return FALSE;
     return TRUE;
@@ -102,49 +106,67 @@ Cbool isFileNameExist()
 
 DWORD WINAPI loadFileToText(LPVOID lpParam)
 {
-    GtkTextBuffer* buffer = NULL;
     File file = loadFile();
-    TextPTR* textPtr = NULL;
-    gsize bytes_read;
-    gsize bytes_written;
-    GError* error = NULL;
+    if (!file.file) return 0;
 
-    if (file.file)
+    TextPTR* textPtr = createTextPtr(file);
+    if (!textPtr) return 0;
+
+    GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(state->textView));
+    if (!buffer)
     {
-        textPtr = (TextPTR*)malloc(sizeof(TextPTR));
-        textPtr->text = (gchar*)malloc(sizeof(char) * (file.length) + 1);
-        textPtr->textName = (gchar*)malloc(sizeof(char) * (strlen(state->filename) + strlen(TITLE_TEXT)) + 1);
-        if (textPtr->text)
-        {
-            fread(textPtr->text, 1, file.length, file.file);
-            textPtr->text[file.length] = '\0';
-            fclose(file.file);
-            if (!g_utf8_validate(textPtr->text, file.length, NULL)) 
-            {
-                gchar* converted = g_locale_to_utf8(textPtr->text, file.length, NULL, NULL, &error);
-                if (!converted) 
-                {
-                    showMessage(error->message);
-                    g_error_free(error);
-                    free(textPtr->text);
-                    return 0;
-                }
-                free(textPtr->text);
-                textPtr->text = converted;
-                textPtr->text[file.length - 1] = '\0';
-            }
-            buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(state->textView));
-
-            if (buffer == NULL)
-            {
-                showMessage("Failed to get text buffer");
-                return;
-            }
-            strcpy(textPtr->textName, TITLE_TEXT);
-            strcat(textPtr->textName, state->filename);
-        }
-
-        g_idle_add((GSourceFunc)updateTextViewOnMainThread, textPtr);
+        showMessage("Failed to get text buffer");
+        free(textPtr->text);
+        free(textPtr);
+        return 0;
     }
+
+    buildTextName(textPtr);
+    g_idle_add((GSourceFunc)updateTextViewOnMainThread, textPtr);
     return 0;
 }
+
+void buildTextName(TextPTR* ptr)
+{
+    ptr->textName = (gchar*)malloc(strlen(state->filename) + strlen(TITLE_TEXT) + 1);
+    if (!ptr->textName) return;
+
+    strcpy(ptr->textName, TITLE_TEXT);
+    strcat(ptr->textName, state->filename);
+}
+
+TextPTR* createTextPtr(File file)
+{
+    GError* error = NULL;
+    TextPTR* textPtr = (TextPTR*)malloc(sizeof(TextPTR));
+    if (!textPtr) return NULL;
+
+    textPtr->text = (gchar*)malloc(file.length + 1);
+    if (!textPtr->text)
+    {
+        free(textPtr);
+        return NULL;
+    }
+
+    fread(textPtr->text, 1, file.length, file.file);
+    textPtr->text[file.length] = '\0';
+    fclose(file.file);
+
+    if (!g_utf8_validate(textPtr->text, file.length, NULL))
+    {
+        gchar* converted = g_locale_to_utf8(textPtr->text, file.length, NULL, NULL, &error);
+        if (!converted)
+        {
+            showMessage(error->message);
+            g_error_free(error);
+            free(textPtr->text);
+            free(textPtr);
+            return NULL;
+        }
+        free(textPtr->text);
+        textPtr->text = converted;
+    }
+
+    return textPtr;
+}
+

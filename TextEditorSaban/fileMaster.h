@@ -7,11 +7,17 @@ typedef struct File
     unsigned long length;
 } File;
 
-typedef UINT8 Cbool;
-
+//saving files and loading
 void saveFile();
 void saveAsFile();
 File loadFile();
-Cbool isFileNameExist();
-DWORD WINAPI loadFileToText(LPVOID lpParam);
+
+//file checks
+gboolean isFileNameExist();
 void trimQuotes(gchar* str);
+
+//background text handling
+DWORD WINAPI loadFileToText(LPVOID lpParam);
+void buildTextName(TextPTR* ptr);
+TextPTR* createTextPtr(File file);
+
