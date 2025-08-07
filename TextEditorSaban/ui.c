@@ -66,7 +66,7 @@ void setupMenu(GtkApplication* app, UIWidgets* widgets)
     widgets->zoom.zoomOut = gtk_menu_item_new_with_label("Zoom Out");
     widgets->zoom.zoomReset = gtk_menu_item_new_with_label("Reset Zoom");
     initVector(&widgets->separators, SEPARATORS_COUNT);
-    addToVector(widgets->separators, gtk_separator_menu_item_new());
+    addToVector(&widgets->separators, gtk_separator_menu_item_new());
     
     //adding the options to the order
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(widgets->fileMenu), widgets->menus.file);
