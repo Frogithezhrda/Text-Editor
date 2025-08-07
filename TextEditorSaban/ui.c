@@ -49,6 +49,7 @@ void setupMenu(GtkApplication* app, UIWidgets* widgets)
     widgets->menus.file = gtk_menu_new();
     widgets->menus.help = gtk_menu_new();
     widgets->menus.edit = gtk_menu_new();
+    widgets->menus.languages = gtk_menu_new();
     //menu widget
     widgets->fileMenu = gtk_menu_item_new_with_label("File");
     widgets->helpMenu = gtk_menu_item_new_with_label("Help");
@@ -65,13 +66,23 @@ void setupMenu(GtkApplication* app, UIWidgets* widgets)
     widgets->zoom.zoomIn = gtk_menu_item_new_with_label("Zoom In");
     widgets->zoom.zoomOut = gtk_menu_item_new_with_label("Zoom Out");
     widgets->zoom.zoomReset = gtk_menu_item_new_with_label("Reset Zoom");
+    widgets->languagesMenu = gtk_menu_item_new_with_label("Languages");
+
+    //languages
+    widgets->lang.langC = gtk_menu_item_new_with_label("C");
+    widgets->lang.langCPP = gtk_menu_item_new_with_label("C++");
+    widgets->lang.langASM = gtk_menu_item_new_with_label("Asm 32");
+
+    //seperators
     initVector(&widgets->separators, SEPARATORS_COUNT);
     addToVector(&widgets->separators, gtk_separator_menu_item_new());
-    
+    addToVector(&widgets->separators, gtk_separator_menu_item_new());
     //adding the options to the order
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(widgets->fileMenu), widgets->menus.file);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(widgets->optionsMenu), widgets->menus.edit);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(widgets->helpMenu), widgets->menus.help);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(widgets->languagesMenu), widgets->menus.languages);
+
     gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menuBar), widgets->fileMenu);
     gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menuBar), widgets->optionsMenu);
     gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menuBar), widgets->helpMenu);
@@ -82,12 +93,22 @@ void setupMenu(GtkApplication* app, UIWidgets* widgets)
     gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.file), widgets->actions.load);
 
     gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.help), widgets->actions.about);
-    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.help), widgets->separators->widgetVector);
+
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.help), widgets->separators.widgetVector[0]);
+
     gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.help), widgets->actions.quit);
 
     gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.edit), widgets->zoom.zoomIn);
     gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.edit), widgets->zoom.zoomOut);
     gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.edit), widgets->zoom.zoomReset);
+
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.edit), widgets->separators.widgetVector[1]);
+
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.edit), widgets->languagesMenu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.languages), widgets->lang.langC);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.languages), widgets->lang.langCPP);
+    gtk_menu_shell_append(GTK_MENU_SHELL(widgets->menus.languages), widgets->lang.langASM);
+
 
 }
 
@@ -107,14 +128,7 @@ void setupTextView(GtkApplication* app, UIWidgets* widgets)
         gtk_source_buffer_set_style_scheme(state->uiText->buf, state->uiText->scheme);
 
     //language handling
-    state->uiText->lm = gtk_source_language_manager_get_default();
-    state->uiText->lang = gtk_source_language_manager_get_language(state->uiText->lm, "c"); //getting the language
-    //if the language not found warn
-    if (!state->uiText->lang)
-        g_warning("Language 'c' not found");
-    //setting the language
-    gtk_source_buffer_set_language(state->uiText->buf, state->uiText->lang);
-
+    setLanguage(NULL, "None");
     //handle the scrolling
     widgets->scrolledWindow = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(widgets->scrolledWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -137,6 +151,10 @@ void setupSignals(GtkApplication* app, UIWidgets* widgets)
     g_signal_connect(widgets->zoom.zoomIn, "activate", G_CALLBACK(zoomIn), NULL);
     g_signal_connect(widgets->zoom.zoomOut, "activate", G_CALLBACK(zoomOut), NULL);
     g_signal_connect(widgets->zoom.zoomReset, "activate", G_CALLBACK(resetZoom), NULL);
+
+    g_signal_connect(widgets->lang.langC, "activate", G_CALLBACK(setLanguage), "c");
+    g_signal_connect(widgets->lang.langASM, "activate", G_CALLBACK(setLanguage), "asm");
+    g_signal_connect(widgets->lang.langCPP, "activate", G_CALLBACK(setLanguage), "cpp");
 
     //handling keyboard signals
     widgets->accelGroup = gtk_accel_group_new();
@@ -191,6 +209,22 @@ void setFontSize()
     pango_font_description_set_size(fontDesc, state->currentFontSize * PANGO_SCALE);
     gtk_widget_override_font(GTK_WIDGET(state->textView), fontDesc);
     pango_font_description_free(fontDesc);
+}
+
+void setLanguage(GtkMenuItem* menuitem, gpointer userData)
+{
+    const char* langName = (const char*)userData;
+    state->uiText->lm = gtk_source_language_manager_get_default();
+    state->uiText->lang = gtk_source_language_manager_get_language(state->uiText->lm, langName); //getting the language
+    //if the language not found warn
+    if (!state->uiText->lang)
+    {
+        g_warning("Language %s not found", langName);
+        gtk_source_buffer_set_language(state->uiText->buf, NULL);
+    }
+    //setting the language
+    gtk_source_buffer_set_language(state->uiText->buf, state->uiText->lang);
+
 }
 
 void zoomIn() 

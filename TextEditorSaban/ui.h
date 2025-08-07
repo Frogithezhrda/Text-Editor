@@ -29,6 +29,7 @@ typedef struct MenuItems {
     GtkWidget* file;
     GtkWidget* edit;
     GtkWidget* help;
+    GtkWidget* languages;
 } MenuItems;
 
 typedef struct MenuActions {
@@ -45,6 +46,12 @@ typedef struct ZoomControls {
     GtkWidget* zoomReset;
 } ZoomControls;
 
+typedef struct LangControls {
+    GtkWidget* langC;
+    GtkWidget* langCPP;
+    GtkWidget* langASM;
+} LangControls;
+
 typedef struct UIWidgets {
     GtkWidget* appWindow;
     GtkWidget* appBox;
@@ -55,12 +62,14 @@ typedef struct UIWidgets {
     GtkWidget* fileMenu;
     GtkWidget* helpMenu;
     GtkWidget* optionsMenu;
+    GtkWidget* languagesMenu;
 
     MenuItems menus;
     MenuActions actions;
     ZoomControls zoom;
+    LangControls lang;
 
-    WidgetVector* separators;
+    WidgetVector separators;
 
     GtkAccelGroup* accelGroup;
 } UIWidgets;
@@ -107,6 +116,9 @@ void resetZoom();
 void zoomIn();
 void zoomOut();
 void setFontSize();
+
+//Language Handling
+void setLanguage(GtkMenuItem* menuitem, gpointer userData);
 
 //Option Handling
 void loadFileOption();

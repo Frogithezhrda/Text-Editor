@@ -89,6 +89,8 @@
   <style name="def:underlined"              italic="true" underline="single"/>
   <style name="def:function" foreground="#f5b92c" />
   <style name="def:keyword" foreground="#02b076" />
+  <style name="def:operator" foreground="#fd971f" />
+  <style name="def:type" foreground="#8ae234" bold="true"/>
 
   <!-- Heading styles, uncomment to enable -->
   <!--
