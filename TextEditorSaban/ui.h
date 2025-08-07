@@ -120,6 +120,10 @@ void setFontSize();
 //Language Handling
 void setLanguage(GtkMenuItem* menuitem, gpointer userData);
 
+//Undo/Redo Handling
+void undo(GtkWidget* widget, gpointer userData);
+void redo(GtkWidget* widget, gpointer userData);
+
 //Option Handling
 void loadFileOption();
 void aboutOption();

@@ -128,7 +128,7 @@ void setupTextView(GtkApplication* app, UIWidgets* widgets)
         gtk_source_buffer_set_style_scheme(state->uiText->buf, state->uiText->scheme);
 
     //language handling
-    setLanguage(NULL, "None");
+    setLanguage("None", "None");
     //handle the scrolling
     widgets->scrolledWindow = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(widgets->scrolledWindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -162,6 +162,8 @@ void setupSignals(GtkApplication* app, UIWidgets* widgets)
     gtk_accel_group_connect(widgets->accelGroup, GDK_KEY_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(saveFile), NULL, NULL));
     gtk_accel_group_connect(widgets->accelGroup, GDK_KEY_equal, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(zoomIn), NULL, NULL));
     gtk_accel_group_connect(widgets->accelGroup, GDK_KEY_minus, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(zoomOut), NULL, NULL));
+    gtk_accel_group_connect(widgets->accelGroup, GDK_KEY_z, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(undo), NULL, NULL));
+    gtk_accel_group_connect(widgets->accelGroup, GDK_KEY_z, GDK_CONTROL_MASK | GDK_SHIFT_MASK, GTK_ACCEL_VISIBLE, g_cclosure_new(G_CALLBACK(redo), NULL, NULL));
 
 }
 
@@ -200,17 +202,7 @@ void aboutOption()
 {
     showMessage("Text Editor By Omer Saban!");
 }
-
-
-//Zoom Handling
-void setFontSize()
-{
-    PangoFontDescription* fontDesc = pango_font_description_from_string("Monospace");
-    pango_font_description_set_size(fontDesc, state->currentFontSize * PANGO_SCALE);
-    gtk_widget_override_font(GTK_WIDGET(state->textView), fontDesc);
-    pango_font_description_free(fontDesc);
-}
-
+//Language Handling
 void setLanguage(GtkMenuItem* menuitem, gpointer userData)
 {
     const char* langName = (const char*)userData;
@@ -226,6 +218,26 @@ void setLanguage(GtkMenuItem* menuitem, gpointer userData)
     gtk_source_buffer_set_language(state->uiText->buf, state->uiText->lang);
 
 }
+//Undo/Redo
+void undo(GtkWidget* widget, gpointer userData)
+{
+    gtk_source_buffer_undo(state->uiText->buf);
+}
+
+void redo(GtkWidget* widget, gpointer userData)
+{
+    gtk_source_buffer_redo(state->uiText->buf);
+}
+
+//Zoom Handling
+void setFontSize()
+{
+    PangoFontDescription* fontDesc = pango_font_description_from_string("Monospace");
+    pango_font_description_set_size(fontDesc, state->currentFontSize * PANGO_SCALE);
+    gtk_widget_override_font(GTK_WIDGET(state->textView), fontDesc);
+    pango_font_description_free(fontDesc);
+}
+
 
 void zoomIn() 
 {
