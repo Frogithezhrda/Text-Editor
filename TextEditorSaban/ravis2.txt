@@ -1,0 +1,2 @@
+int ravos = 1;
+char* cute = "Yehuda";

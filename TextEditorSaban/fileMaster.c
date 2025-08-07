@@ -69,6 +69,10 @@ void saveAsFile()
             return;
         }
         //saving the file
+        TextPTR* textPtr = (TextPTR*)malloc(sizeof(TextPTR));
+        buildTextName(textPtr);
+        gtk_window_set_title(GTK_WINDOW(state->appWindow), textPtr->textName);
+        free(textPtr);
         saveFile();
     }
 
@@ -106,51 +110,28 @@ gboolean isFileNameExist()
 
 DWORD WINAPI loadFileToText(LPVOID lpParam)
 {
-    GtkTextBuffer* buffer = NULL;
     File file = loadFile();
-    TextPTR* textPtr = NULL;
-    gsize bytes_read;
-    gsize bytes_written;
-    GError* error = NULL;
+    if (!file.file)
+        return 0;
 
-    if (file.file)
+    TextPTR* textPtr = createTextPtr(file);
+    if (!textPtr)
+        return 0;
+
+    buildTextName(textPtr);
+
+    GtkTextBuffer* buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(state->textView));
+    if (!buffer)
     {
-        textPtr = (TextPTR*)malloc(sizeof(TextPTR));
-        textPtr->text = (gchar*)malloc(sizeof(char) * (file.length) + 1);
-        textPtr->textName = (gchar*)malloc(sizeof(char) * (strlen(state->filename) + strlen(TITLE_TEXT)) + 1);
-        if (textPtr->text)
-        {
-            fread(textPtr->text, 1, file.length, file.file);
-            textPtr->text[file.length] = '\0';
-            fclose(file.file);
-            if (!g_utf8_validate(textPtr->text, file.length, NULL)) 
-            {
-                gchar* converted = g_locale_to_utf8(textPtr->text, file.length, NULL, NULL, &error);
-                if (!converted) 
-                {
-                    showMessage(error->message);
-                    g_error_free(error);
-                    free(textPtr->text);
-                    free(textPtr);
-                    return 0;
-                }
-                free(textPtr->text);
-                textPtr->text = converted;
-                textPtr->text[file.length - 1] = '\0';
-            }
-            buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(state->textView));
-
-            if (buffer == NULL)
-            {
-                showMessage("Failed to get text buffer");
-                return;
-            }
-            strcpy(textPtr->textName, TITLE_TEXT);
-            strcat(textPtr->textName, state->filename);
-        }
-
-        g_idle_add((GSourceFunc)updateTextViewOnMainThread, textPtr);
+        showMessage("Failed to get text buffer");
+        g_free(textPtr->text);
+        g_free(textPtr->textName);
+        free(textPtr);
+        return 0;
     }
+
+    g_idle_add((GSourceFunc)updateTextViewOnMainThread, textPtr);
+
     return 0;
 }
 
