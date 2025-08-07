@@ -50,6 +50,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 GtkApplication* initApp()
 {
+    g_setenv("GSETTINGS_SCHEMA_DIR", "C:\\msys64\\mingw64\\share\\glib-2.0\\schemas", TRUE);
     GtkApplication* app = gtk_application_new("my.texteditor", G_APPLICATION_FLAGS_NONE);
     if (!app)
     {
