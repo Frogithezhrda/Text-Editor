@@ -146,8 +146,11 @@
   <ItemGroup>
     <ClCompile Include="fileMaster.c" />
     <ClCompile Include="prog.c" />
+<<<<<<< Updated upstream
     <ClCompile Include="ui.c" />
     <ClCompile Include="widgetVector.c" />
+=======
+>>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <None Include="styles.css" />
