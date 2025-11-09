@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.33927.289
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36202.13 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextEditorSaban", "TextEditorSaban\TextEditorSaban.vcxproj", "{5A6681F7-DC4B-45CF-9162-E6BB13B5FF6C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TextEditorServer", "TextEditorServer\TextEditorServer.vcxproj", "{FF7144C8-B487-43AA-97FC-1E5083072FE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,14 @@ Global
 		{5A6681F7-DC4B-45CF-9162-E6BB13B5FF6C}.Release|x64.Build.0 = Release|x64
 		{5A6681F7-DC4B-45CF-9162-E6BB13B5FF6C}.Release|x86.ActiveCfg = Release|Win32
 		{5A6681F7-DC4B-45CF-9162-E6BB13B5FF6C}.Release|x86.Build.0 = Release|Win32
+		{FF7144C8-B487-43AA-97FC-1E5083072FE8}.Debug|x64.ActiveCfg = Debug|x64
+		{FF7144C8-B487-43AA-97FC-1E5083072FE8}.Debug|x64.Build.0 = Debug|x64
+		{FF7144C8-B487-43AA-97FC-1E5083072FE8}.Debug|x86.ActiveCfg = Debug|Win32
+		{FF7144C8-B487-43AA-97FC-1E5083072FE8}.Debug|x86.Build.0 = Debug|Win32
+		{FF7144C8-B487-43AA-97FC-1E5083072FE8}.Release|x64.ActiveCfg = Release|x64
+		{FF7144C8-B487-43AA-97FC-1E5083072FE8}.Release|x64.Build.0 = Release|x64
+		{FF7144C8-B487-43AA-97FC-1E5083072FE8}.Release|x86.ActiveCfg = Release|Win32
+		{FF7144C8-B487-43AA-97FC-1E5083072FE8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

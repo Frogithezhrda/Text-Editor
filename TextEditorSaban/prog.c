@@ -87,10 +87,38 @@ int main()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
     GtkApplication* app = NULL;
+<<<<<<< Updated upstream
     int status = 0;
     app = gtk_application_new("my.texteditor", G_APPLICATION_FLAGS_NONE);
     if (!app) {
         show_message("Failed to initialize GTK app!");
+=======
+
+    //getting the app
+    app = initApp();
+    //getting the files from command
+    if (*lpCmdLine != '\0')
+    {
+        state->filename = g_strdup(lpCmdLine);
+        trimQuotes(state->filename);
+    }
+
+    g_application_run(G_APPLICATION(app), NULL, NULL);
+    g_object_unref(app);
+    freeAppState(state);
+    return 0;
+}
+#endif
+    
+
+GtkApplication* initApp()
+{
+    g_setenv("GSETTINGS_SCHEMA_DIR", "share/glib-2.0/schemas", TRUE);
+    GtkApplication* app = gtk_application_new("my.texteditor", G_APPLICATION_FLAGS_NONE);
+    if (!app)
+    {
+        showMessage("Failed to initialize GTK app!");
+>>>>>>> Stashed changes
         return 0;
     }
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
